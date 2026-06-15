@@ -14,6 +14,7 @@ const userIdControl=document.getElementById('userId');
 const addPost =document.getElementById('addPost');
 const updatePost =document.getElementById('updatePost');
 
+const spinner=  document.getElementById('spinner');
 
 
 function snackbar(msg,icon){
@@ -89,7 +90,7 @@ function onSubmit(eve){
      }    
      postArr.unshift(postObj);
 
-
+          spinner.classList.remove('d-none');
      let xhr= new XMLHttpRequest() ;
          xhr.open('GET', post_url);
          xhr.send(null);
@@ -115,7 +116,9 @@ function onSubmit(eve){
                                     </div>`  
 
                    postContainer.prepend(div);
+                   spinner.classList.add('d-none');
                } else{ 
+                     spinner.classList.add('d-none');
                       snackbar("Failed to submit Card...!" ,' error');
                   }
          }
@@ -171,20 +174,19 @@ function onEdit(ele){
   
        let EditUrl = `${base_url}/posts/${editId}`;
 
-       
-       
+       spinner.classList.remove('d-none');
+        
        let xhr = new XMLHttpRequest() ;
        
            xhr.open('GET', EditUrl);
-           xhr.setRequestHeader('content-type', 'application/type'); 
-           xhr.setRequestHeader('Autho', 'Get token from'); 
+            
 
            xhr.send(null);
 
            xhr.onload = function(){ 
               if(xhr.status>=200 && xhr.status<=299){ 
-                    let editObj =JSON.parse(xhr.response);
-                       console.log(editObj);
+                   let editObj =JSON.parse(xhr.response);
+                        console.log(editObj);
                        
                     titleControl.value = editObj.title;
                     contentControl.value = editObj.body;
@@ -192,9 +194,11 @@ function onEdit(ele){
                     
                    addPost.classList.add('d-none');
                    updatePost.classList.remove('d-none');
-
+                  spinner.classList.add('d-none');
                 }else{ 
-                     snackbar('Failed to edit post', 'error');
+                   spinner.classList.add('d-none');
+                     
+                    snackbar('Failed to edit post', 'error');
                 }
            }
 
@@ -212,7 +216,7 @@ function onUpdate(){
            content:contentControl.value ,
            userId:userIdControl.value
         }
-
+ spinner.classList.remove('d-none')
     let xhr = new XMLHttpRequest(); 
         xhr.open('PATCH', updateUrl);
         xhr.send(JSON.stringify(updateObj));
@@ -220,12 +224,25 @@ function onUpdate(){
         xhr.onload = function (){ 
              if(xhr.status>=200 && xhr.status<=299){ 
                 let col = document.getElementById(updateId);
-                 let h3 = col.querySelector('.card-header h3').innerText = updateObj.title ;
-                 let p= col.querySelector('.card-body p').innerText= updateObj.content;          
-            
+                col.innerHTML =` <div class="card">
+                                        <div class="card-header">
+                                            ${updateObj.title}
+                                        </div>
+                                        <div class="card-body">
+                                          ${updateObj.content}
+                                        </div>
+                                            
+                                        <div class="card-footer d-flex justify-content-between ">
+                                        <button onclick='onEdit(this)' class="btn btn-inline-block btn-outline-primary">Edit</button>
+                                        <button onclick='onRemove(this)' class="btn btn-inline-block btn-outline-danger">Delete</button>
+                                        </div>
+                                    </div>  ` ;                
                    addPost.classList.remove('d-none');
                    updatePost.classList.add('d-none');
+                    spinner.classList.add('d-none')
+                   postForm.reset();
                 } else{
+                    spinner.classList.add('d-none')
                     snackbar('Failed to update data....', 'error')
                 }
         }
